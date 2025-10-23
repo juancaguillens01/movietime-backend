@@ -1,0 +1,72 @@
+# ==========================
+# Maven / Java
+# ==========================
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# ==========================
+# IntelliJ IDEA / Eclipse
+# ==========================
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# ==========================
+# Logs / Temp Files
+# ==========================
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+.DS_Store
+Thumbs.db
+
+# ==========================
+# Spring Boot
+# ==========================
+spring.log
+
+# ==========================
+# Docker / Compose
+# ==========================
+*.pid
+.env
+docker-compose.override.yml
+
+# ==========================
+# OS Files
+# ==========================
+ehthumbs.db
+Icon?
+desktop.ini
+
+# ==========================
+# Node (if front-end added later)
+# ==========================
+node_modules/
+dist/
+
+# ==========================
+# Sonar / CI
+# ==========================
+.sonar/
+coverage/
+test-output/
+
+# ==========================
+# VSCode
+# ==========================
+.vscode/
