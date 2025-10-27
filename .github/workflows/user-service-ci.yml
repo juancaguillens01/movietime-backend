@@ -19,11 +19,7 @@ jobs:
           POSTGRES_DB: user_service_db
           POSTGRES_USER: movietime_user
           POSTGRES_PASSWORD: movietime_pass
-        options: >
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - uses: actions/checkout@v3
