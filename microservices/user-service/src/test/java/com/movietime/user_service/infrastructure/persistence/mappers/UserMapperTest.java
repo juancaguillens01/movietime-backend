@@ -9,90 +9,92 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserMapperTest {
 
-    private final UserMapper mapper = UserMapper.INSTANCE;
-
-    private UUID userId;
-    private Set<RoleEntity> allRoles;
-    private RoleEntity adminRoleEntity;
+    private UserMapper mapper;
+    private Set<RoleEntity> availableRoles;
 
     @BeforeEach
     void setUp() {
-        userId = UUID.randomUUID();
-        adminRoleEntity = RoleEntity.builder().id(1L).name("ADMIN").build();
-        RoleEntity userRoleEntity = RoleEntity.builder().id(2L).name("USER").build();
-        allRoles = Set.of(adminRoleEntity, userRoleEntity);
+        mapper = UserMapper.INSTANCE;
+        availableRoles = Set.of(
+                new RoleEntity(1L, "ADMIN"),
+                new RoleEntity(2L, "USER")
+        );
     }
 
     @Test
-    void toDomain_shouldReturnNull_whenEntityIsNull() {
-        assertNull(mapper.toDomain(null));
-    }
-
-    @Test
-    void toDomain_shouldMapEntityToDomainUser_successfully() {
+    void testToDomain() {
+        UUID id = UUID.randomUUID();
         UserEntity entity = UserEntity.builder()
-                .id(userId)
-                .username("testuser")
-                .email("test@mail.com")
-                .passwordHash("hash123")
-                .roles(allRoles)
+                .id(id)
+                .username("juanca")
+                .email("juanca@example.com")
+                .passwordHash("hashed123")
+                .roles(availableRoles)
                 .build();
 
-        User domain = mapper.toDomain(entity);
+        User user = mapper.toDomain(entity);
 
-        assertNotNull(domain);
-        assertEquals(userId, domain.getId());
-        assertEquals("testuser", domain.getUsername());
-        assertTrue(domain.getRoles().contains(Role.ADMIN));
-        assertTrue(domain.getRoles().contains(Role.USER));
+        assertThat(user).isNotNull();
+        assertThat(user.getId()).isEqualTo(id);
+        assertThat(user.getUsername()).isEqualTo("juanca");
+        assertThat(user.getEmail()).isEqualTo("juanca@example.com");
+        assertThat(user.getPasswordHash()).isEqualTo("hashed123");
+        assertThat(user.getRoles()).containsExactlyInAnyOrder(Role.ADMIN, Role.USER);
     }
 
     @Test
-    void toEntity_shouldReturnNull_whenDomainIsNull() {
-        assertNull(mapper.toEntity(null, allRoles));
+    void testToDomainWithNull() {
+        assertThat(mapper.toDomain(null)).isNull();
     }
 
     @Test
-    void toEntity_shouldMapDomainUserToEntity_successfully() {
+    void testToEntity() {
+        UUID id = UUID.randomUUID();
         User domain = User.builder()
-                .id(userId)
-                .username("newuser")
-                .email("new@mail.com")
-                .passwordHash("newhash")
-                .roles(Set.of(Role.USER))
+                .id(id)
+                .username("juanca")
+                .email("juanca@example.com")
+                .passwordHash("hashed123")
+                .roles(Set.of(Role.ADMIN, Role.USER))
                 .build();
 
-        UserEntity entity = mapper.toEntity(domain, allRoles);
+        UserEntity entity = mapper.toEntity(domain, availableRoles);
 
-        assertNotNull(entity);
-        assertEquals(userId, entity.getId());
-        assertEquals("newuser", entity.getUsername());
-        Set<String> entityRoleNames = entity.getRoles().stream()
-                .map(RoleEntity::getName)
-                .collect(Collectors.toSet());
-        assertTrue(entityRoleNames.contains("USER"));
+        assertThat(entity).isNotNull();
+        assertThat(entity.getId()).isEqualTo(id);
+        assertThat(entity.getUsername()).isEqualTo("juanca");
+        assertThat(entity.getEmail()).isEqualTo("juanca@example.com");
+        assertThat(entity.getPasswordHash()).isEqualTo("hashed123");
+        assertThat(entity.getRoles()).extracting(RoleEntity::getName)
+                .containsExactlyInAnyOrder("ADMIN", "USER");
     }
 
     @Test
-    void toEntity_shouldThrowException_whenRoleIsNotFound() {
-        Set<RoleEntity> availableRoles = Set.of(adminRoleEntity);
+    void testToEntityWithNull() {
+        assertThat(mapper.toEntity(null, availableRoles)).isNull();
+    }
 
+    @Test
+    void testToEntityThrowsWhenRoleNotInAvailableRoles() {
         User domain = User.builder()
-                .id(userId)
-                .username("baduser")
-                .email("bad@mail.com")
-                .passwordHash("hash")
-                .roles(Set.of(Role.USER))
+                .id(UUID.randomUUID())
+                .username("juanca")
+                .email("juanca@example.com")
+                .passwordHash("hashed123")
+                .roles(Set.of(Role.ADMIN, Role.USER))
                 .build();
 
-        assertThrows(RuntimeException.class, () -> {
-            mapper.toEntity(domain, availableRoles);
-        });
+        Set<RoleEntity> limitedRoles = Set.of(new RoleEntity(1L, "ADMIN"));
+
+        assertThatThrownBy(() -> mapper.toEntity(domain, limitedRoles))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Role not found: USER");
     }
+
 }
