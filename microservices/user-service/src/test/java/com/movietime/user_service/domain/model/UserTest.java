@@ -26,6 +26,7 @@ class UserTest {
         assertThat(user.getEmail()).isEqualTo("juanca@example.com");
         assertThat(user.getPasswordHash()).isEqualTo("hashed123");
         assertThat(user.getRoles()).containsOnly(Role.ADMIN, Role.USER);
+        assertThat(user.isBanned()).isFalse();
     }
 
     @Test
@@ -38,6 +39,7 @@ class UserTest {
                 .build();
 
         assertThat(user.getRoles()).isNull();
+        assertThat(user.isBanned()).isFalse();
     }
 
     @Test

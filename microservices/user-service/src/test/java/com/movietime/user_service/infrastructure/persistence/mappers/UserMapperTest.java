@@ -36,6 +36,7 @@ class UserMapperTest {
                 .email("juanca@example.com")
                 .passwordHash("hashed123")
                 .roles(availableRoles)
+                .banned(true)
                 .build();
 
         User user = mapper.toDomain(entity);
@@ -46,6 +47,7 @@ class UserMapperTest {
         assertThat(user.getEmail()).isEqualTo("juanca@example.com");
         assertThat(user.getPasswordHash()).isEqualTo("hashed123");
         assertThat(user.getRoles()).containsExactlyInAnyOrder(Role.ADMIN, Role.USER);
+        assertThat(user.isBanned()).isTrue();
     }
 
     @Test
@@ -62,6 +64,7 @@ class UserMapperTest {
                 .email("juanca@example.com")
                 .passwordHash("hashed123")
                 .roles(Set.of(Role.ADMIN, Role.USER))
+                .banned(true)
                 .build();
 
         UserEntity entity = mapper.toEntity(domain, availableRoles);
@@ -73,6 +76,7 @@ class UserMapperTest {
         assertThat(entity.getPasswordHash()).isEqualTo("hashed123");
         assertThat(entity.getRoles()).extracting(RoleEntity::getName)
                 .containsExactlyInAnyOrder("ADMIN", "USER");
+        assertThat(entity.isBanned()).isTrue();
     }
 
     @Test

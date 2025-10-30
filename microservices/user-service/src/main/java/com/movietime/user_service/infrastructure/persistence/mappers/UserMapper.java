@@ -26,6 +26,7 @@ public interface UserMapper {
                 .roles(entity.getRoles().stream()
                         .map(r -> Role.valueOf(r.getName()))
                         .collect(Collectors.toSet()))
+                .banned(entity.isBanned())
                 .build();
     }
 
@@ -45,6 +46,7 @@ public interface UserMapper {
                 .email(domain.getEmail())
                 .passwordHash(domain.getPasswordHash())
                 .roles(roles)
+                .banned(domain.isBanned())
                 .build();
     }
 }
