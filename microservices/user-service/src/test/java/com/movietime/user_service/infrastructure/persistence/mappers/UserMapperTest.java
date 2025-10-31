@@ -6,6 +6,7 @@ import com.movietime.user_service.infrastructure.persistence.entities.RoleEntity
 import com.movietime.user_service.infrastructure.persistence.entities.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Set;
 import java.util.UUID;
@@ -20,7 +21,8 @@ class UserMapperTest {
 
     @BeforeEach
     void setUp() {
-        mapper = UserMapper.INSTANCE;
+        mapper = Mappers.getMapper(UserMapper.class);
+
         availableRoles = Set.of(
                 new RoleEntity(1L, "ADMIN"),
                 new RoleEntity(2L, "USER")
@@ -100,5 +102,4 @@ class UserMapperTest {
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Role not found: USER");
     }
-
 }
