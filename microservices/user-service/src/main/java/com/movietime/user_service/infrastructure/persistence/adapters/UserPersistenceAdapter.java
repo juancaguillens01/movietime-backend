@@ -7,6 +7,8 @@ import com.movietime.user_service.infrastructure.persistence.repositories.JpaUse
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class UserPersistenceAdapter implements UserRepository {
@@ -25,5 +27,11 @@ public class UserPersistenceAdapter implements UserRepository {
                 .stream()
                 .map(userMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<User> findById(UUID id) {
+        return jpaUserRepository.findById(id)
+                .map(userMapper::toDomain);
     }
 }
