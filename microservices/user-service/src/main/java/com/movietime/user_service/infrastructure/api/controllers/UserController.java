@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(UserController.USERS)
 public class UserController {
-
+    public static final String USERS = "/users";
     private final GetUsersUseCase getUsersUseCase;
     private final UserWebMapper userWebMapper;
 
