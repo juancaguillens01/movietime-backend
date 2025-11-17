@@ -18,6 +18,7 @@ import java.util.UUID;
 @RequestMapping(UserController.USERS)
 public class UserController {
     public static final String USERS = "/users";
+    public static final String USER_ID = "/{id}";
     private final GetUsersUseCase getUsersUseCase;
     private final GetUserUseCase getUserUseCase;
     private final UserWebMapper userWebMapper;
@@ -38,7 +39,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(USER_ID)
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
         User user = getUserUseCase.getUser(id);
         UserResponse response = userWebMapper.toResponse(user);

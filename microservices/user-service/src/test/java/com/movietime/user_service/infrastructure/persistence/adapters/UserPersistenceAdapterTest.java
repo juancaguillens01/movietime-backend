@@ -14,7 +14,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,5 +79,27 @@ class UserPersistenceAdapterTest {
         List<User> users = adapter.findAll();
 
         assertThat(users).isEmpty();
+    }
+
+    @Test
+    void findById_returnsMappedUser() {
+        Optional<User> userOptional = adapter.findById(userEntity.getId());
+
+        assertThat(userOptional).isPresent();
+
+        User user = userOptional.get();
+        assertThat(user.getId()).isEqualTo(userEntity.getId());
+        assertThat(user.getUsername()).isEqualTo("juanca");
+        assertThat(user.getEmail()).isEqualTo("juanca@example.com");
+        assertThat(user.getRoles()).containsExactlyInAnyOrder(Role.ADMIN, Role.USER);
+        assertThat(user.isBanned()).isFalse();
+    }
+
+    @Test
+    void findById_returnsEmptyOptionalWhenNotFound() {
+        UUID randomId = UUID.randomUUID();
+        Optional<User> userOptional = adapter.findById(randomId);
+
+        assertThat(userOptional).isEmpty();
     }
 }

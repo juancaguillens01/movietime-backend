@@ -1,7 +1,9 @@
 package com.movietime.user_service.infrastructure.api.controllers;
 
+import com.movietime.user_service.application.usecases.GetUserUseCase;
 import com.movietime.user_service.application.usecases.GetUsersUseCase;
 import com.movietime.user_service.config.TestSecurityConfig;
+import com.movietime.user_service.domain.exceptions.UserNotFoundException;
 import com.movietime.user_service.domain.model.Role;
 import com.movietime.user_service.domain.model.User;
 import com.movietime.user_service.infrastructure.api.dtos.UserResponse;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.movietime.user_service.infrastructure.api.controllers.UserController.USER_ID;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,6 +37,9 @@ class UserControllerTest {
 
     @MockitoBean
     private GetUsersUseCase getUsersUseCase;
+
+    @MockitoBean
+    private GetUserUseCase getUserUseCase;
 
     @MockitoBean
     private UserWebMapper userWebMapper;
@@ -86,5 +92,32 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getUserById_returnsUser() throws Exception {
+        when(getUserUseCase.getUser(user.getId())).thenReturn(user);
+        when(userWebMapper.toResponse(user)).thenReturn(userResponse);
+
+        mockMvc.perform(get(UserController.USERS + USER_ID, user.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userResponse.id().toString()))
+                .andExpect(jsonPath("$.username").value("juanca"))
+                .andExpect(jsonPath("$.email").value("juanca@example.com"))
+                .andExpect(jsonPath("$.roles").isArray())
+                .andExpect(jsonPath("$.banned").value(false));
+    }
+
+    @Test
+    void getUserById_userNotFound() throws Exception {
+        UUID nonExistentId = UUID.randomUUID();
+        when(getUserUseCase.getUser(nonExistentId))
+                .thenThrow(new UserNotFoundException(nonExistentId));
+
+        mockMvc.perform(get(UserController.USERS + USER_ID, nonExistentId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found with id: " + nonExistentId));
     }
 }
